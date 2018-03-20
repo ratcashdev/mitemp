@@ -1,0 +1,6 @@
+# primary dependency
+btlewrap==0.0.2
+
+# transitive dependencies through btlewrap
+bluepy==1.1.4
+pygatt==3.2.0

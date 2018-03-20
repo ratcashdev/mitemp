@@ -1,18 +1,10 @@
-# mitemp - Library for Xiaomi Mi Temperature and Humidity Sensor (v2) with the LCD displady
+# mitemp - Library for Xiaomi Mi Temperature and Humidity Sensor (v2) with Bleutooth LE and the LCD display
 
-[![PyPI](https://img.shields.io/pypi/v/miflora.svg)](https://pypi.python.org/pypi/miflora)
-[![PyPI](https://img.shields.io/pypi/status/miflora.svg)](https://pypi.python.org/pypi/miflora)
-[![PyPI](https://img.shields.io/pypi/format/miflora.svg)](https://pypi.python.org/pypi/miflora)
-[![Travis](https://img.shields.io/travis/open-homeautomation/miflora.svg)](https://travis-ci.org/open-homeautomation/miflora)
-[![Coveralls github](https://img.shields.io/coveralls/github/open-homeautomation/miflora.svg)](https://coveralls.io/github/open-homeautomation/miflora)
-[![Plants healty and growing](https://img.shields.io/badge/plants-healthy%20and%20growing-green.svg)](https://github.com/open-homeautomation/miflora)
-[![GitHub license](https://img.shields.io/github/license/open-homeautomation/miflora.svg)](https://github.com/open-homeautomation/miflora/blob/master/LICENSE)
 
-This library lets you read sensor data from a Xiaomi Mi Temperature and Humidity sensor.
 
-* Latest release download: https://pypi.python.org/pypi/miflora
-* Build status: https://travis-ci.org/open-homeautomation/miflora
-* Test coverage: https://coveralls.io/github/open-homeautomation/miflora
+This library lets you read sensor data from a Xiaomi Mi BluetoothLE Temperature and Humidity sensor.
+
+
 
 ## Functionality 
 It supports reading the different measurements from the sensor
