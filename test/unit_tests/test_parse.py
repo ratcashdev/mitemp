@@ -5,7 +5,7 @@
 import unittest
 from datetime import datetime
 from test.helper import MockBackend
-from mitemp.mitemp_poller import MiTempPoller, MI_TEMPERATURE, MI_HUMIDITY
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY
 
 
 class KNXConversionTest(unittest.TestCase):
@@ -14,8 +14,8 @@ class KNXConversionTest(unittest.TestCase):
     # pylint: disable=protected-access
 
     def test_parsing(self):
-        """Does the Mi TEMP data parser works correctly?"""
-        poller = MiTempPoller(None, MockBackend)
+        """Does the Mi TEMP BT data parser works correctly?"""
+        poller = MiTempBtPoller(None, MockBackend)
         data = bytes([0x54, 0x3d, 0x32, 0x35, 0x2e, 0x36, 0x20,
                       0x48, 0x3d, 0x32, 0x33, 0x2e, 0x36, 0x00])
         poller._cache = data

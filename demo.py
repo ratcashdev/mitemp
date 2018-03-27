@@ -7,7 +7,7 @@ import logging
 import sys
 
 from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
-from mitemp.mitemp_poller import MiTempPoller, \
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, \
     MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
 
@@ -21,7 +21,7 @@ def valid_mitemp_mac(mac, pat=re.compile(r"4C:65:A8:[0-9A-F]{2}:[0-9A-F]{2}:[0-9
 def poll(args):
     """Poll data from the sensor."""
     backend = _get_backend(args)
-    poller = MiTempPoller(args.mac, backend)
+    poller = MiTempBtPoller(args.mac, backend)
     print("Getting data from Mi Temperature and Humidity Sensor")
     print("FW: {}".format(poller.firmware_version()))
     print("Name: {}".format(poller.name()))

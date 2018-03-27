@@ -1,5 +1,5 @@
 [run]
-source = mitemp
+source = mitemp_bt
 
 omit =
 

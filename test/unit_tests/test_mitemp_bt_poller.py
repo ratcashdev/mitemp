@@ -3,11 +3,11 @@ import unittest
 from test.helper import MockBackend, ConnectExceptionBackend, RWExceptionBackend
 
 from btlewrap.base import BluetoothBackendException
-from mitemp.mitemp_poller import MiTempPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
 
-class TestMiTempPoller(unittest.TestCase):
-    """Tests for the MiTempPoller class."""
+class TestMiTempBtPoller(unittest.TestCase):
+    """Tests for the MiTempBtPoller class."""
 
     # access to protected members is fine in testing
     # pylint: disable = protected-access
@@ -16,11 +16,11 @@ class TestMiTempPoller(unittest.TestCase):
 
     def test_format_bytes(self):
         """Test conversion of bytes to string."""
-        self.assertEqual('AA BB 00', MiTempPoller._format_bytes([0xAA, 0xBB, 0x00]))
+        self.assertEqual('AA BB 00', MiTempBtPoller._format_bytes([0xAA, 0xBB, 0x00]))
 
     def test_read_battery(self):
         """Test reading the battery level."""
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.battery_level = 50
         self.assertEqual(50, poller.battery_level())
@@ -29,7 +29,7 @@ class TestMiTempPoller(unittest.TestCase):
 
     def test_read_version(self):
         """Test reading the version number."""
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.set_version('00.00.11')
         self.assertEqual('00.00.11', poller.firmware_version())
@@ -40,7 +40,7 @@ class TestMiTempPoller(unittest.TestCase):
 
         Here we expect some data being written to the sensor.
         """
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
 
         backend.temperature = 56.7
@@ -49,7 +49,7 @@ class TestMiTempPoller(unittest.TestCase):
 
     def test_name(self):
         """Check reading of the sensor name."""
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.name = 'my sensor name'
 
@@ -57,7 +57,7 @@ class TestMiTempPoller(unittest.TestCase):
 
     def test_clear_cache(self):
         """Test with negative temperature."""
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
 
         self.assertFalse(poller.cache_available())
@@ -82,7 +82,7 @@ class TestMiTempPoller(unittest.TestCase):
 
         Check that this triggers the right exception.
         """
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.handle_0x0010_raw = None
         with self.assertRaises(BluetoothBackendException):
@@ -93,7 +93,7 @@ class TestMiTempPoller(unittest.TestCase):
 
         Check that this triggers the right exception.
         """
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.handle_0x03_raw = None
         with self.assertRaises(BluetoothBackendException):
@@ -104,14 +104,14 @@ class TestMiTempPoller(unittest.TestCase):
 
         Check that this triggers the right exception.
         """
-        poller = MiTempPoller(self.TEST_MAC, MockBackend)
+        poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
         backend.handle_0x0024_raw = None
         self.assertTrue(poller.firmware_version() is None)
 
     def test_connect_exception(self):
         """Test reaction when getting a BluetoothBackendException."""
-        poller = MiTempPoller(self.TEST_MAC, ConnectExceptionBackend, retries=0)
+        poller = MiTempBtPoller(self.TEST_MAC, ConnectExceptionBackend, retries=0)
         with self.assertRaises(BluetoothBackendException):
             poller.firmware_version()
         with self.assertRaises(BluetoothBackendException):
@@ -123,7 +123,7 @@ class TestMiTempPoller(unittest.TestCase):
 
     def test_rw_exception(self):
         """Test reaction when getting a BluetoothBackendException."""
-        poller = MiTempPoller(self.TEST_MAC, RWExceptionBackend, retries=0)
+        poller = MiTempBtPoller(self.TEST_MAC, RWExceptionBackend, retries=0)
         with self.assertRaises(BluetoothBackendException):
             poller.firmware_version()
         with self.assertRaises(BluetoothBackendException):
@@ -135,5 +135,5 @@ class TestMiTempPoller(unittest.TestCase):
 
     @staticmethod
     def _get_backend(poller):
-        """Get the backend from a MiTempPoller object."""
+        """Get the backend from a MiTempBtPoller object."""
         return poller._bt_interface._backend

@@ -20,7 +20,7 @@ MI_BATTERY = "battery"
 _LOGGER = logging.getLogger(__name__)
 
 
-class MiTempPoller(object):
+class MiTempBtPoller(object):
     """"
     A class to read data from Mi Temp plant sensors.
     """

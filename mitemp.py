@@ -2,7 +2,7 @@
 Support for Xiaomi Mi Temp BLE environmental sensor.
 
 For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.mitemp/
+https://home-assistant.io/components/sensor.mitemp_bt/
 """
 import logging
 
@@ -16,7 +16,7 @@ from homeassistant.const import (
 )
 
 
-REQUIREMENTS = ['mitemp==0.0.1']
+REQUIREMENTS = ['mitemp_bt==0.0.1']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ DEFAULT_ADAPTER = 'hci0'
 DEFAULT_UPDATE_INTERVAL = 300
 DEFAULT_FORCE_UPDATE = False
 DEFAULT_MEDIAN = 3
-DEFAULT_NAME = 'Mi Temp'
+DEFAULT_NAME = 'MiTemp BT'
 DEFAULT_RETRIES = 2
 DEFAULT_TIMEOUT = 10
 
@@ -57,8 +57,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Set up the MiTemp sensor."""
-    from mitemp import mitemp_poller
+    """Set up the MiTempBt sensor."""
+    from mitemp_bt import mitemp_bt_poller
     try:
         import bluepy.btle  # noqa: F401 # pylint: disable=unused-variable
         from btlewrap import BluepyBackend
@@ -66,10 +66,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     except ImportError:
         from btlewrap import GatttoolBackend
         backend = GatttoolBackend
-    _LOGGER.debug('MiTemp is using %s backend.', backend.__name__)
+    _LOGGER.debug('MiTempBt is using %s backend.', backend.__name__)
 
     cache = config.get(CONF_CACHE)
-    poller = mitemp_poller.MiTempPoller(
+    poller = mitemp_bt_poller.MiTempBtPoller(
         config.get(CONF_MAC), cache_timeout=cache,
         adapter=config.get(CONF_ADAPTER), backend=backend)
     force_update = config.get(CONF_FORCE_UPDATE)
@@ -87,14 +87,14 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         if prefix:
             name = "{} {}".format(prefix, name)
 
-        devs.append(MiTempSensor(
+        devs.append(MiTempBtSensor(
             poller, parameter, name, unit, force_update, median))
 
     add_devices(devs)
 
 
-class MiTempSensor(Entity):
-    """Implementing the MiTemp sensor."""
+class MiTempBtSensor(Entity):
+    """Implementing the MiTempBt sensor."""
 
     def __init__(self, poller, parameter, name, unit, force_update, median):
         """Initialize the sensor."""

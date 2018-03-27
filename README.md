@@ -1,5 +1,4 @@
-# mitemp - Library for Xiaomi Mi Temperature and Humidity Sensor (v2) with Bleutooth LE and the LCD display
-
+# mitemp_bt - Library for Xiaomi Mi Temperature and Humidity Sensor (v2) with Bleutooth LE and the LCD display
 
 
 This library lets you read sensor data from a Xiaomi Mi BluetoothLE Temperature and Humidity sensor.
@@ -27,10 +26,10 @@ binaray available on your machine.
 
 Example to use the bluez/gatttool wrapper:
 ```python
-from mitemp.mitemp_poller import MiTempPoller
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller
 from btlewrap.gatttool import GatttoolBackend
 
-poller = MiTempPoller('some mac address', GatttoolBackend)
+poller = MiTempBtPoller('some mac address', GatttoolBackend)
 ```
 
 ### bluepy
@@ -39,10 +38,10 @@ To use the [bluepy](https://github.com/IanHarvey/bluepy) library you have to ins
 
 Example to use the bluepy backend:
 ```python
-from mitemp.mitemp_poller import MiTempPoller
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller
 from btlewrap.bluepy import BluepyBackend
 
-poller = MiTempPoller('some mac address', BluepyBackend)
+poller = MiTempBtPoller('some mac address', BluepyBackend)
 ```
 
 ### pygatt
@@ -52,7 +51,7 @@ install the bluepy library on your machine. In most cases this can be done via:
 
 Example to use the pygatt backend:
 ```python
-from mitemp.mitemp_poller import MiTempPoller
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller
 from btlewrap.pygatt import PygattBackend
 
 poller = MiTempPoller('some mac address', PygattBackend)
@@ -63,9 +62,9 @@ please have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ----
 
-## Projects Depending on `mitemp`
+## Projects Depending on `mitemp_bt`
 
 The following shows a selected list of projects using this library:
 
-* https://github.com/ThomDietrich/miflora-mqtt-daemon - An MQTT Client/Daemon for Smart Home solution integration
-* https://home-assistant.io/components/sensor.miflora/ - Integration in Home Assistant 
+* https://github.com/ThomDietrich/mitemp_bt-mqtt-daemon - An MQTT Client/Daemon for Smart Home solution integration
+* https://home-assistant.io/components/sensor.mitemp_bt/ - Integration in Home Assistant 

@@ -3,8 +3,8 @@ import unittest
 import pytest
 from btlewrap.gatttool import GatttoolBackend
 from btlewrap.bluepy import BluepyBackend
-from mitemp.mitemp_poller import (MiTempPoller, MI_TEMPERATURE,
-                                  MI_HUMIDITY, MI_BATTERY)
+from mitemp_bt.mitemp_bt_poller import (MiTempBtPoller, MI_TEMPERATURE,
+                                        MI_HUMIDITY, MI_BATTERY)
 
 
 class TestEverythingGatt(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestEverythingGatt(unittest.TestCase):
         real sensor close by.
         """
         assert hasattr(self, "mac")
-        poller = MiTempPoller(self.mac, self.backend_type)
+        poller = MiTempBtPoller(self.mac, self.backend_type)
         self.assertIsNotNone(poller.firmware_version())
         self.assertIsNotNone(poller.name())
         self.assertIsNotNone(poller.parameter_value(MI_TEMPERATURE))
