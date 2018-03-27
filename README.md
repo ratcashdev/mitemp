@@ -67,7 +67,4 @@ please have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Projects Depending on `mitemp_bt`
 
-The following shows a selected list of projects using this library:
-
-* https://github.com/ThomDietrich/mitemp_bt-mqtt-daemon - An MQTT Client/Daemon for Smart Home solution integration
-* https://home-assistant.io/components/sensor.mitemp_bt/ - Integration in Home Assistant 
+AFAIK, none
