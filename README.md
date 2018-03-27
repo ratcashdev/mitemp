@@ -14,6 +14,9 @@ It supports reading the different measurements from the sensor
 To use this library you will need a Bluetooth Low Energy dongle attached to your computer. You will also need a
 Xiaomi Mi Temperature and Humidity sensor. 
 
+To use with home-assistant.io, implement the following GIST in HA:
+https://gist.github.com/ratcashdev/28253bb2c220788e4961f213fe87ff33
+
 ## Backends
 This sensor relies on the btlewrap library to provide a unified interface for various underlying btle implementations
 * bluez tools (via a wrapper around gatttool)
