@@ -48,17 +48,10 @@ poller = MiTempBtPoller('some mac address', BluepyBackend)
 ```
 
 ### pygatt
-If you have a Blue Giga based device that is supported by [pygatt](https://github.com/peplin/pygatt), you have to
-install the bluepy library on your machine. In most cases this can be done via: 
-```pip3 install pygatt``` 
+This device needs notification support from the underlying backend in btlewrap. 
+Currently only Gatttool or Bluepy provide this possibility. Pygatt is therefore not supported.
+PRs to enhance btlewrap library's pygatt support should be directed to: https://github.com/ChristianKuehnel/btlewrap
 
-Example to use the pygatt backend:
-```python
-from mitemp_bt.mitemp_bt_poller import MiTempBtPoller
-from btlewrap.pygatt import PygattBackend
-
-poller = MiTempPoller('some mac address', PygattBackend)
-```
 
 ## Conttributing
 please have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
