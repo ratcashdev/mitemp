@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 setup(
     name='mitemp_bt',
     version='0.0.1',
-    description='Library to read data from Mi Temperature and Humidity Sensor (V2) with LCD display',
-    url='https://github.com/open-homeautomation/mitemp',
+    description='Library to read data from Mi Temperature and Humidity Sensor (V2) using Bluetooth LE with LCD display',
+    url='https://github.com/ratcashdev/mitemp',
     author='ratcashdev',
     author_email='developer@ratcash.net',
     license='MIT',
