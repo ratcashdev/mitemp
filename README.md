@@ -60,4 +60,4 @@ please have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Projects Depending on `mitemp_bt`
 
-AFAIK, none
+https://github.com/home-assistant/home-assistant
