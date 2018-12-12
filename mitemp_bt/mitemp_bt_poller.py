@@ -165,17 +165,22 @@ class MiTempBtPoller(object):
     def _parse_data(self):
         """Parses the byte array returned by the sensor.
 
-        The sensor returns 14 bytes in total, a readable text with the
+        The sensor returns 13 - 14 bytes in total, a readable text with the
         temperature and humidity. e.g.:
 
         54 3d 32 35 2e 36 20 48 3d 32 33 2e 36 00 -> T=25.6 H=23.6
 
+        Fix for single digit values thank to @rmiddlet: https://github.com/ratcashdev/mitemp/issues/2#issuecomment-406263635
         """
         data = self._cache
 
         res = dict()
-        res[MI_HUMIDITY] = float(data[9:13])
-        res[MI_TEMPERATURE] = float(data[2:6])
+        for dataitem in data.strip('\0').split(' '):
+            dataparts = dataitem.split('=')
+            if dataparts[0] == 'T':
+                res[MI_TEMPERATURE] = float(dataparts[1])
+            elif dataparts[0] == 'H':
+                res[MI_HUMIDITY] = float(dataparts[1])
         return res
 
     @staticmethod
