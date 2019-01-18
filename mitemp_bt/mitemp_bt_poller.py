@@ -165,7 +165,7 @@ class MiTempBtPoller(object):
     def _parse_data(self):
         """Parses the byte array returned by the sensor.
 
-        The sensor returns 13 - 14 bytes in total, a readable text with the
+        The sensor returns 12 - 15 bytes in total, a readable text with the
         temperature and humidity. e.g.:
 
         54 3d 32 35 2e 36 20 48 3d 32 33 2e 36 00 -> T=25.6 H=23.6
