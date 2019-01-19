@@ -30,8 +30,8 @@ class KNXConversionTest(unittest.TestCase):
                       0x48, 0x3d, 0x33, 0x2e, 0x36])
         poller._cache = data
         poller._last_read = datetime.now()
-        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], 25.6)
-        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 23.6)
+        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], 2.3)
+        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 3.6)
 
     def test_parsing(self):
         """Does the Mi TEMP BT data parser works correctly for negative single digit values? Value: T=-9.3 H=36.6"""
@@ -40,8 +40,8 @@ class KNXConversionTest(unittest.TestCase):
                       0x48, 0x3d, 0x33, 0x36, 0x2e, 0x36])
         poller._cache = data
         poller._last_read = datetime.now()
-        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], 25.6)
-        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 23.6)
+        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], -9.3)
+        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 36.6)
 
     def test_parsing(self):
         """Does the Mi TEMP BT data parser works correctly for negative double digit values? Value: T=-11.3 H=37.6"""
@@ -50,5 +50,5 @@ class KNXConversionTest(unittest.TestCase):
                       0x48, 0x3d, 0x33, 0x37, 0x2e, 0x36])
         poller._cache = data
         poller._last_read = datetime.now()
-        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], 25.6)
-        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 23.6)
+        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], -11.3)
+        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 37.6)
