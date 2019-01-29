@@ -65,7 +65,8 @@ class MiTempBtPoller(object):
 
         with self._bt_interface.connect(self._mac) as connection:
             try:
-                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self, 10)  # pylint: disable=no-member
+                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self,
+                                                 self.ble_timeout)  # pylint: disable=no-member
                 # If a sensor doesn't work, wait 5 minutes before retrying
             except BluetoothBackendException:
                 self._last_read = datetime.now() - self._cache_timeout + \
