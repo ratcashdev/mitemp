@@ -22,25 +22,23 @@ def valid_mitemp_mac(mac, pat=re.compile(r"58:2D:34:[0-9A-F]{2}:[0-9A-F]{2}:[0-9
 def poll(args):
     """Poll data from the sensor."""
     backend = _get_backend(args)
-    poller = MiTempBtPoller(args.mac, backend)
-    print("Getting data from Mi Temperature and Humidity Sensor")
-    print("FW: {}".format(poller.firmware_version()))
-    print("Name: {}".format(poller.name()))
-    print("Battery: {}".format(poller.parameter_value(MI_BATTERY)))
-    print("Temperature: {}".format(poller.parameter_value(MI_TEMPERATURE)))
-    print("Humidity: {}".format(poller.parameter_value(MI_HUMIDITY)))
+    for mac in args.macs:
+        poller = MiTempBtPoller(mac, backend)
 
-
-# def scan(args):
-#     """Scan for sensors."""
-#     backend = _get_backend(args)
-#     print('Scanning for 10 seconds...')
-#     devices = mitemp_scanner.scan(backend, 10)
-#     devices = []
-#     print('Found {} devices:'.format(len(devices)))
-#     for device in devices:
-#         print('  {}'.format(device))
-
+        if args.devinfo == True:
+            print('{}->{{"name":"{}","fw":"{}","battery":{}}}'
+                .format(
+                    mac,
+                    poller.name(),
+                    poller.firmware_version(),
+                    poller.parameter_value(MI_BATTERY)))
+        else:
+            s = '{}->{{"measurements":[{{"name":"temperature","value":{},"units":"℃"}},{{"name":"humidity","value":{},"units":"%"}}]}}' \
+                .format(
+                    mac,
+                    poller.parameter_value(MI_TEMPERATURE),
+                    poller.parameter_value(MI_HUMIDITY))
+            print(s)
 
 def _get_backend(args):
     """Extract the backend class from the command line arguments."""
@@ -60,23 +58,16 @@ def list_backends(_):
     backends = [b.__name__ for b in available_backends()]
     print('\n'.join(backends))
 
-
 def main():
-    """Main function.
-
-    Mostly parsing the command line arguments.
-    """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--backend', choices=['gatttool', 'bluepy', 'pygatt'], default='gatttool')
+    parser.add_argument('-b', '--backend', choices=['gatttool', 'bluepy', 'pygatt'], default='gatttool')
+    parser.add_argument('-d', '--devinfo', action='store_true')
     parser.add_argument('-v', '--verbose', action='store_const', const=True)
     subparsers = parser.add_subparsers(help='sub-command help', )
 
     parser_poll = subparsers.add_parser('poll', help='poll data from a sensor')
-    parser_poll.add_argument('mac', type=valid_mitemp_mac)
+    parser_poll.add_argument('macs', type=valid_mitemp_mac, nargs="*")
     parser_poll.set_defaults(func=poll)
-
-    # parser_scan = subparsers.add_parser('scan', help='scan for devices')
-    # parser_scan.set_defaults(func=scan)
 
     parser_scan = subparsers.add_parser('backends', help='list the available backends')
     parser_scan.set_defaults(func=list_backends)
@@ -95,3 +86,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
