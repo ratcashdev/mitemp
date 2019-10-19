@@ -1,0 +1,1 @@
+1 * * * * python3 /home/pi/apps/mitemp/mitemp-mqtt.py 58:2D:34:36:82:ED --measurements --health

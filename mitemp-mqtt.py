@@ -2,8 +2,6 @@
 
 import argparse
 import re
-import logging
-import sys
 import paho.mqtt.client as mqtt
 
 from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
@@ -25,12 +23,12 @@ def mac_to_eui64(mac):
         return eui64
     return None
 
-def _get_backend(args):
+def get_backend(args):
     """Extract the backend class from the command line arguments."""
     if args.backend == 'gatttool':
         backend = GatttoolBackend
-    elif args.backend == 'bluepy':
-        backend = BluepyBackend
+    # elif args.backend == 'bluepy':
+    #     backend = BluepyBackend
     elif args.backend == 'pygatt':
         backend = PygattBackend
     else:
@@ -53,7 +51,7 @@ parser.add_argument('-m', '--measurements', action='store_true')
 
 args = parser.parse_args()
 
-backend = _get_backend(args)
+backend = get_backend(args)
 
 mqtt_client = mqtt.Client("test2")
 mqtt_client.connect("rpi-opench-gateway", 1883)
