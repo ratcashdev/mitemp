@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import re
 import getmac
@@ -9,7 +8,6 @@ from btlewrap import BluepyBackend, GatttoolBackend, PygattBackend
 from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
 MAC_ADDRESS = r'(?i)[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}'
-
 
 def valid_mac(mac):
     """ Validates MAC address """
@@ -63,14 +61,15 @@ ARGS = PARSER.parse_args()
 BACKEND = get_backend(ARGS)
 
 SELF_MAC = getmac.get_mac_address()
-MQTT_CLIENT = mqtt.Client("mitemp-mqtt-" + mac_to_eui64(valid_mac(SELF_MAC)))
+SELF_EUI64 = mac_to_eui64(valid_mac(SELF_MAC))
+MQTT_CLIENT = mqtt.Client("mitemp-mqtt-" + SELF_EUI64)
 MQTT_CLIENT.connect(ARGS.server, ARGS.port)
 
 for mitemp_mac in ARGS.macs:
     mitemp_eui64 = mac_to_eui64(mitemp_mac)
-    topic_device_info = 'OpenCH/TeHu/{}/PubDeviceInfo'.format(mitemp_eui64)
-    topic_health = 'OpenCH/TeHu/{}/PubHealth'.format(mitemp_eui64)
-    topic_measurements = 'OpenCH/TeHu/{}/PubState'.format(mitemp_eui64)
+    topic_device_info = 'OpenCH/{}/TeHu/{}/Evt/DeviceInfo'.format(SELF_EUI64, mitemp_eui64)
+    topic_health = 'OpenCH/{}/TeHu/{}/Evt/Health'.format(SELF_EUI64, mitemp_eui64)
+    topic_status = 'OpenCH/{}/TeHu/{}/Evt/Status'.format(SELF_EUI64, mitemp_eui64)
     
     poller = MiTempBtPoller(mitemp_mac, BACKEND)
 
@@ -92,6 +91,6 @@ for mitemp_mac in ARGS.macs:
             .format(
                 poller.parameter_value(MI_TEMPERATURE),
                 poller.parameter_value(MI_HUMIDITY))
-        MQTT_CLIENT.publish(topic_measurements, message)
+        MQTT_CLIENT.publish(topic_status, message)
 
 MQTT_CLIENT.disconnect()

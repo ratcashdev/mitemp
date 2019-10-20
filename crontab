@@ -1,1 +1,1 @@
-*/15 * * * * python3 /home/pi/apps/mitemp/mitemp-mqtt.py 58:2D:34:36:82:ED -m -e -s rpi-opench-gateway
+*/15 * * * * python3 /home/pi/apps/mitemp/mitemp_mqtt.py 58:2D:34:36:82:ED -m -e -s rpi-opench-gateway
