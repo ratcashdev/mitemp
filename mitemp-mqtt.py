@@ -2,86 +2,96 @@
 
 import argparse
 import re
+import getmac
 import paho.mqtt.client as mqtt
 
-from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
-from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, \
-    MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
+from btlewrap import BluepyBackend, GatttoolBackend, PygattBackend
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
-def valid_mitemp_mac(mac, pat=re.compile(r"58:2D:34:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}")):
-#def valid_mitemp_mac(mac, pat=re.compile(r"4C:65:A8:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}")):
-    """Check for valid mac adresses."""
-    if not pat.match(mac.upper()):
-        raise argparse.ArgumentTypeError('The MAC address "{}" seems to be in the wrong format'.format(mac))
-    return mac
+MAC_ADDRESS = r'(?i)[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}'
+
+
+def valid_mac(mac):
+    """ Validates MAC address """
+    regex_mac_address = re.compile(MAC_ADDRESS)
+    if regex_mac_address.match(mac):
+        return mac
+    raise argparse.ArgumentTypeError('Invalid MAC address {}'.format(mac))
 
 def mac_to_eui64(mac):
-    if valid_mitemp_mac(mac):
+    """ Converts MAC address to EUI64 """
+    if valid_mac(mac):
         eui64 = re.sub(r'[.:-]', '', mac).lower()
         eui64 = eui64[0:6] + 'fffe' + eui64[6:]
         eui64 = hex(int(eui64[0:2], 16) ^ 2)[2:].zfill(2) + eui64[2:]
         return eui64
     return None
 
+MI_TEMP_V1 = r'(?i)58:2D:34:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}'
+MI_TEMP_V2 = r'(?i)4C:65:A8:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}'
+
+def valid_mitemp_mac(mac):
+    """ Validates MiTemp MAC address """
+    regex_v1 = re.compile(MI_TEMP_V1)
+    regex_v2 = re.compile(MI_TEMP_V2)
+    if regex_v1.match(mac) or regex_v2.match(mac):
+        return mac
+    raise argparse.ArgumentTypeError('Invalid MiTemp MAC address {}'.format(mac))
+
 def get_backend(args):
-    """Extract the backend class from the command line arguments."""
+    """ Returns Bluetooth backend """
     if args.backend == 'gatttool':
         backend = GatttoolBackend
-    # elif args.backend == 'bluepy':
-    #     backend = BluepyBackend
+    elif args.backend == 'bluepy':
+        backend = BluepyBackend
     elif args.backend == 'pygatt':
         backend = PygattBackend
     else:
         raise Exception('unknown backend: {}'.format(args.backend))
     return backend
 
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument('macs', type=valid_mitemp_mac, nargs="*")
+PARSER.add_argument('-s', '--server', default='localhost')
+PARSER.add_argument('-p', '--port', default=1883)
+PARSER.add_argument('-b', '--backend', choices=['gatttool', 'bluepy', 'pygatt'], default='gatttool')
+PARSER.add_argument('-d', '--devinfo', action='store_true')
+PARSER.add_argument('-e', '--health', action='store_true')
+PARSER.add_argument('-m', '--measurements', action='store_true')
 
-def list_backends(_):
-    """List all available backends."""
-    backends = [b.__name__ for b in available_backends()]
-    print('\n'.join(backends))
+ARGS = PARSER.parse_args()
+BACKEND = get_backend(ARGS)
 
-parser = argparse.ArgumentParser()
+SELF_MAC = getmac.get_mac_address()
+MQTT_CLIENT = mqtt.Client("mitemp-mqtt-" + mac_to_eui64(valid_mac(SELF_MAC)))
+MQTT_CLIENT.connect(ARGS.server, ARGS.port)
 
-parser.add_argument('macs', type=valid_mitemp_mac, nargs="*")
-parser.add_argument('-b', '--backend', choices=['gatttool', 'bluepy', 'pygatt'], default='gatttool')
-parser.add_argument('-d', '--devinfo', action='store_true')
-parser.add_argument('-e', '--health', action='store_true')
-parser.add_argument('-m', '--measurements', action='store_true')
-
-args = parser.parse_args()
-
-backend = get_backend(args)
-
-mqtt_client = mqtt.Client("test2")
-mqtt_client.connect("rpi-opench-gateway", 1883)
-
-for mac in args.macs:
-    topicDeviceInfo = 'OpenCH/TeHu/{}/PubDeviceInfo'.format(mac_to_eui64(mac))
-    topicHealth = 'OpenCH/TeHu/{}/PubHealth'.format(mac_to_eui64(mac))
-    topicMeasurements = 'OpenCH/TeHu/{}/PubState'.format(mac_to_eui64(mac))
+for mitemp_mac in ARGS.macs:
+    mitemp_eui64 = mac_to_eui64(mitemp_mac)
+    topic_device_info = 'OpenCH/TeHu/{}/PubDeviceInfo'.format(mitemp_eui64)
+    topic_health = 'OpenCH/TeHu/{}/PubHealth'.format(mitemp_eui64)
+    topic_measurements = 'OpenCH/TeHu/{}/PubState'.format(mitemp_eui64)
     
-    poller = MiTempBtPoller(mac, backend)
+    poller = MiTempBtPoller(mitemp_mac, BACKEND)
 
-    if args.devinfo == True:
+    if ARGS.devinfo:
        message = '{{"name":"{}","firmware_version":"{}"}}' \
             .format(
                 poller.name(),
                 poller.firmware_version())
-       mqtt_client.publish(topicDeviceInfo, message)
+       MQTT_CLIENT.publish(topic_device_info, message)
 
-    if args.health == True:
+    if ARGS.health:
         message = '{{"measurements":[{{"name":"battery","value":{},"units":"%"}}]}}' \
             .format(
                 poller.parameter_value(MI_BATTERY))
-        mqtt_client.publish(topicHealth, message)
+        MQTT_CLIENT.publish(topic_health, message)
 
-    if args.measurements == True:
+    if ARGS.measurements:
         message = '{{"measurements":[{{"name":"temperature","value":{},"units":"℃"}},{{"name":"humidity","value":{},"units":"%"}}]}}' \
             .format(
                 poller.parameter_value(MI_TEMPERATURE),
                 poller.parameter_value(MI_HUMIDITY))
-        mqtt_client.publish(topicMeasurements, message)
+        MQTT_CLIENT.publish(topic_measurements, message)
 
-mqtt_client.disconnect()
-
+MQTT_CLIENT.disconnect()
