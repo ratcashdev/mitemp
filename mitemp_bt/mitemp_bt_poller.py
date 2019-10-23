@@ -150,10 +150,6 @@ class MiTempBtPoller(object):
             self.clear_cache()
             return
 
-        if parsed[MI_TEMPERATURE] == 0:  # humidity over 100 procent
-            self.clear_cache()
-            return
-
     def clear_cache(self):
         """Manually force the cache to be cleared."""
         self._cache = None
