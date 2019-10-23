@@ -12,8 +12,8 @@ class MockBackend(AbstractBackend):
     makes sensor to also test against a real sensor.
     """
 
-    def __init__(self, adapter='hci0'):
-        super(MockBackend, self).__init__(adapter)
+    def __init__(self, adapter='hci0', address_type: str = 'public'):
+        super(MockBackend, self).__init__(adapter, address_type)
         self._version = '00.00.66'
         self.name = 'MJ_HT_V1'
         self.battery_level = 0
