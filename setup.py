@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mitemp_bt',
-    version='0.0.2',
+    version='0.0.3',
     description='Library to read data from Mi Temperature and Humidity Sensor (V2) using Bluetooth LE with LCD display',
     url='https://github.com/ratcashdev/mitemp',
     author='ratcashdev',
