@@ -170,7 +170,8 @@ class MiTempBtPoller(object):
 
         54 3d 32 35 2e 36 20 48 3d 32 33 2e 36 00 -> T=25.6 H=23.6
 
-        Fix for single digit values thank to @rmiddlet: https://github.com/ratcashdev/mitemp/issues/2#issuecomment-406263635
+        Fix for single digit values thank to @rmiddlet:
+        https://github.com/ratcashdev/mitemp/issues/2#issuecomment-406263635
         """
         data = self._cache
 
