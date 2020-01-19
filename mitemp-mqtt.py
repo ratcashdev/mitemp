@@ -97,7 +97,7 @@ for mitemp_mac in args.macs:
             msgs.append({'topic': topic_measurements, 'payload': payload}) 
 
     except Exception as e:
-        print(mac + ' mitemp sensor failure: ' + str(e))
+        print(mitemp_mac + ' mitemp sensor failure: ' + str(e))
 
     if len(msgs) > 0:
         publish.multiple(msgs, hostname = args.server, port = args.port, client_id = mqtt_client_id)
