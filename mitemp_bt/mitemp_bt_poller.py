@@ -20,7 +20,7 @@ MI_BATTERY = "battery"
 _LOGGER = logging.getLogger(__name__)
 
 
-class MiTempBtPoller(object):
+class MiTempBtPoller:
     """"
     A class to read data from Mi Temp plant sensors.
     """
@@ -131,8 +131,7 @@ class MiTempBtPoller(object):
 
         if self.cache_available():
             return self._parse_data()[parameter]
-        else:
-            raise BluetoothBackendException("Could not read data from Mi Temp sensor %s" % self._mac)
+        raise BluetoothBackendException("Could not read data from Mi Temp sensor %s" % self._mac)
 
     def _check_data(self):
         """Ensure that the data in the cache is valid.
