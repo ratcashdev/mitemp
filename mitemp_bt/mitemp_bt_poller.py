@@ -20,7 +20,7 @@ MI_BATTERY = "battery"
 _LOGGER = logging.getLogger(__name__)
 
 
-class MiTempBtPoller(object):
+class MiTempBtPoller:
     """"
     A class to read data from Mi Temp plant sensors.
     """
@@ -65,7 +65,8 @@ class MiTempBtPoller(object):
 
         with self._bt_interface.connect(self._mac) as connection:
             try:
-                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self, 10)  # pylint: disable=no-member
+                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self,
+                                                 self.ble_timeout)  # pylint: disable=no-member
                 # If a sensor doesn't work, wait 5 minutes before retrying
             except BluetoothBackendException:
                 self._last_read = datetime.now() - self._cache_timeout + \
@@ -130,8 +131,7 @@ class MiTempBtPoller(object):
 
         if self.cache_available():
             return self._parse_data()[parameter]
-        else:
-            raise BluetoothBackendException("Could not read data from Mi Temp sensor %s" % self._mac)
+        raise BluetoothBackendException("Could not read data from Mi Temp sensor %s" % self._mac)
 
     def _check_data(self):
         """Ensure that the data in the cache is valid.
@@ -149,10 +149,6 @@ class MiTempBtPoller(object):
             self.clear_cache()
             return
 
-        if parsed[MI_TEMPERATURE] == 0:  # humidity over 100 procent
-            self.clear_cache()
-            return
-
     def clear_cache(self):
         """Manually force the cache to be cleared."""
         self._cache = None
@@ -165,17 +161,23 @@ class MiTempBtPoller(object):
     def _parse_data(self):
         """Parses the byte array returned by the sensor.
 
-        The sensor returns 14 bytes in total, a readable text with the
+        The sensor returns 12 - 15 bytes in total, a readable text with the
         temperature and humidity. e.g.:
 
         54 3d 32 35 2e 36 20 48 3d 32 33 2e 36 00 -> T=25.6 H=23.6
 
+        Fix for single digit values thank to @rmiddlet:
+        https://github.com/ratcashdev/mitemp/issues/2#issuecomment-406263635
         """
         data = self._cache
 
         res = dict()
-        res[MI_HUMIDITY] = float(data[9:13])
-        res[MI_TEMPERATURE] = float(data[2:6])
+        for dataitem in data.strip('\0').split(' '):
+            dataparts = dataitem.split('=')
+            if dataparts[0] == 'T':
+                res[MI_TEMPERATURE] = float(dataparts[1])
+            elif dataparts[0] == 'H':
+                res[MI_HUMIDITY] = float(dataparts[1])
         return res
 
     @staticmethod

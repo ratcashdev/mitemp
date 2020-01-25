@@ -12,8 +12,8 @@ class MockBackend(AbstractBackend):
     makes sensor to also test against a real sensor.
     """
 
-    def __init__(self, adapter='hci0'):
-        super(MockBackend, self).__init__(adapter)
+    def __init__(self, adapter='hci0', address_type: str = 'public'):
+        super(MockBackend, self).__init__(adapter, address_type)
         self._version = '00.00.66'
         self.name = 'MJ_HT_V1'
         self.battery_level = 0
@@ -49,14 +49,13 @@ class MockBackend(AbstractBackend):
         """Read one of the handles that are implemented."""
         if handle in self.override_read_handles:
             return self.override_read_handles[handle]
-        elif handle == _HANDLE_READ_BATTERY_LEVEL:
+        if handle == _HANDLE_READ_BATTERY_LEVEL:
             return self._read_battery_level()
-        elif handle == _HANDLE_READ_FIRMWARE_VERSION:
+        if handle == _HANDLE_READ_FIRMWARE_VERSION:
             return self._read_firmware()
-        elif handle == _HANDLE_READ_NAME:
+        if handle == _HANDLE_READ_NAME:
             return self._read_name()
-        else:
-            raise ValueError('handle not implemented in mockup')
+        raise ValueError('handle not implemented in mockup')
 
     def write_handle(self, handle, value):
         """Writing handles just stores the results in a list."""
