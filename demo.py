@@ -21,7 +21,7 @@ def valid_mitemp_mac(mac, pat=re.compile(r"[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[
 def poll(args):
     """Poll data from the sensor."""
     backend = _get_backend(args)
-    poller = MiTempBtPoller(args.mac, backend)
+    poller = MiTempBtPoller(args.mac, backend, args.version)
     print("Getting data from Mi Temperature and Humidity Sensor")
     print("FW: {}".format(poller.firmware_version()))
     print("Name: {}".format(poller.name()))
@@ -67,6 +67,7 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--backend', choices=['gatttool', 'bluepy', 'pygatt'], default='gatttool')
+    parser.add_argument('--version', choices=['V1', 'V2'], default='V1')
     parser.add_argument('-v', '--verbose', action='store_const', const=True)
     subparsers = parser.add_subparsers(help='sub-command help', )
 

@@ -7,10 +7,12 @@ import logging
 from threading import Lock
 from btlewrap.base import BluetoothInterface, BluetoothBackendException
 
-_HANDLE_READ_BATTERY_LEVEL = 0x0018
-_HANDLE_READ_FIRMWARE_VERSION = 0x0024
-_HANDLE_READ_NAME = 0x03
-_HANDLE_READ_WRITE_SENSOR_DATA = 0x0010
+_HANDLE_READ_BATTERY_LEVEL = (0x0018, 0x001B)
+_HANDLE_READ_FIRMWARE_VERSION = (0x0024, 0x0012)
+_HANDLE_READ_NAME = (0x03, 0x03)
+_HANDLE_READ_WRITE_SENSOR_DATA = (0x0010, 0x001C)
+
+_HANDLE_VERSIONS = ("V1","V2")
 
 
 MI_TEMPERATURE = "temperature"
@@ -25,7 +27,7 @@ class MiTempBtPoller:
     A class to read data from Mi Temp plant sensors.
     """
 
-    def __init__(self, mac, backend, cache_timeout=600, retries=3, adapter='hci0'):
+    def __init__(self, mac, backend, version='V1', cache_timeout=600, retries=3, adapter='hci0'):
         """
         Initialize a Mi Temp Poller for the given MAC address.
         """
@@ -41,15 +43,17 @@ class MiTempBtPoller:
         self.lock = Lock()
         self._firmware_version = None
         self.battery = None
+        self.version = version
+        self.hversion =_HANDLE_VERSIONS.index(self.version)
 
     def name(self):
         """Return the name of the sensor."""
         with self._bt_interface.connect(self._mac) as connection:
-            name = connection.read_handle(_HANDLE_READ_NAME)  # pylint: disable=no-member
+            name = connection.read_handle(_HANDLE_READ_NAME[self.hversion])  # pylint: disable=no-member
 
         if not name:
             raise BluetoothBackendException("Could not read NAME using handle %s"
-                                            " from Mi Temp sensor %s" % (hex(_HANDLE_READ_NAME), self._mac))
+                                            " from Mi Temp sensor %s" % (hex(_HANDLE_READ_NAME[self.hversion]), self._mac))
         return ''.join(chr(n) for n in name)
 
     def fill_cache(self):
@@ -65,7 +69,7 @@ class MiTempBtPoller:
 
         with self._bt_interface.connect(self._mac) as connection:
             try:
-                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self,
+                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA[self.hversion], self,
                                                  self.ble_timeout)  # pylint: disable=no-member
                 # If a sensor doesn't work, wait 5 minutes before retrying
             except BluetoothBackendException:
@@ -88,12 +92,12 @@ class MiTempBtPoller:
                 (datetime.now() - timedelta(hours=24) > self._fw_last_read):
             self._fw_last_read = datetime.now()
             with self._bt_interface.connect(self._mac) as connection:
-                res_firmware = connection.read_handle(_HANDLE_READ_FIRMWARE_VERSION)  # pylint: disable=no-member
+                res_firmware = connection.read_handle(_HANDLE_READ_FIRMWARE_VERSION[self.hversion])  # pylint: disable=no-member
                 _LOGGER.debug('Received result for handle %s: %s',
-                              _HANDLE_READ_FIRMWARE_VERSION, res_firmware)
-                res_battery = connection.read_handle(_HANDLE_READ_BATTERY_LEVEL)  # pylint: disable=no-member
+                              _HANDLE_READ_FIRMWARE_VERSION[self.hversion], res_firmware)
+                res_battery = connection.read_handle(_HANDLE_READ_BATTERY_LEVEL[self.hversion])  # pylint: disable=no-member
                 _LOGGER.debug('Received result for handle %s: %d',
-                              _HANDLE_READ_BATTERY_LEVEL, res_battery)
+                              _HANDLE_READ_BATTERY_LEVEL[self.hversion], res_battery)
 
             if res_firmware is None:
                 self._firmware_version = None
@@ -172,12 +176,18 @@ class MiTempBtPoller:
         data = self._cache
 
         res = dict()
-        for dataitem in data.strip('\0').split(' '):
-            dataparts = dataitem.split('=')
-            if dataparts[0] == 'T':
-                res[MI_TEMPERATURE] = float(dataparts[1])
-            elif dataparts[0] == 'H':
-                res[MI_HUMIDITY] = float(dataparts[1])
+
+        if self.version == 'V1':
+            for dataitem in data.strip('\0').split(' '):
+                        dataparts = dataitem.split('=')
+                        if dataparts[0] == 'T':
+                            res[MI_TEMPERATURE] = float(dataparts[1])
+                        elif dataparts[0] == 'H':
+                            res[MI_HUMIDITY] = float(dataparts[1])
+        else:
+            res[MI_TEMPERATURE] = int.from_bytes([data[0], data[1]], "little")/100.0
+            res[MI_HUMIDITY] = int.from_bytes([data[2], data[3]], "little")/1000.0
+
         return res
 
     @staticmethod
@@ -192,7 +202,8 @@ class MiTempBtPoller:
         """
         if raw_data is None:
             return
-        data = raw_data.decode("utf-8").strip(' \n\t')
+        data = raw_data.decode("utf-8").strip(' \n\t') if self.version == 'V1' else raw_data
+
         self._cache = data
         self._check_data()
         if self.cache_available():
