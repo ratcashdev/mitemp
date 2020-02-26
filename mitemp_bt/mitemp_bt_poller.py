@@ -186,7 +186,7 @@ class MiTempBtPoller:
                             res[MI_HUMIDITY] = float(dataparts[1])
         else:
             res[MI_TEMPERATURE] = int.from_bytes([data[0], data[1]], "little")/100.0
-            res[MI_HUMIDITY] = int.from_bytes([data[2], data[3]], "little")/1000.0
+            res[MI_HUMIDITY] = int.from_bytes([data[2]], "little")
 
         return res
 
