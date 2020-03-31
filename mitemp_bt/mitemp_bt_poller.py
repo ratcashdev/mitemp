@@ -170,9 +170,12 @@ class MiTempBtPoller:
         https://github.com/ratcashdev/mitemp/issues/2#issuecomment-406263635
         """
         data = self._cache
+        # Sanitizing the input sometimes has spurious binary data
+        data = data.strip('\0')
+        data = ''.join(filter(lambda i: i.isprintable(), data))
 
         res = dict()
-        for dataitem in data.strip('\0').split(' '):
+        for dataitem in data.split(' '):
             dataparts = dataitem.split('=')
             if dataparts[0] == 'T':
                 res[MI_TEMPERATURE] = float(dataparts[1])

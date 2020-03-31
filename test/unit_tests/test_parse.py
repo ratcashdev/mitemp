@@ -52,3 +52,13 @@ class KNXConversionTest(unittest.TestCase):
         poller._last_read = datetime.now()
         self.assertEqual(poller._parse_data()[MI_TEMPERATURE], -11.3)
         self.assertEqual(poller._parse_data()[MI_HUMIDITY], 37.6)
+
+    def test_parsing5(self):
+        """Does the Mi TEMP BT data parser works correctly with spurious binary data? Value: T=-11.3 H=53.0\x02"""
+        poller = MiTempBtPoller(None, MockBackend)
+        data = bytearray([0x54, 0x3d, 0x2d, 0x31, 0x31, 0x2e, 0x33, 0x20,
+                          0x48, 0x3d, 0x35, 0x33, 0x2e, 0x30, 0x02]).decode("utf-8").strip(' \n\t')
+        poller._cache = data
+        poller._last_read = datetime.now()
+        self.assertEqual(poller._parse_data()[MI_TEMPERATURE], -11.3)
+        self.assertEqual(poller._parse_data()[MI_HUMIDITY], 53.0)
