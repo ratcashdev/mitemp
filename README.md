@@ -3,6 +3,7 @@
 
 This library lets you read sensor data from a Xiaomi Mi BluetoothLE Temperature and Humidity sensor.
 
+NOTE: this library is not maintained - I am not using the device any more.
 
 
 ## Functionality 
