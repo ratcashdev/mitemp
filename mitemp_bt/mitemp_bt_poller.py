@@ -92,7 +92,7 @@ class MiTempBtPoller:
                 _LOGGER.debug('Received result for handle %s: %s',
                               _HANDLE_READ_FIRMWARE_VERSION, res_firmware)
                 res_battery = connection.read_handle(_HANDLE_READ_BATTERY_LEVEL)  # pylint: disable=no-member
-                _LOGGER.debug('Received result for handle %s: %d',
+                _LOGGER.debug('Received result for handle %s: %s',
                               _HANDLE_READ_BATTERY_LEVEL, res_battery)
 
             if res_firmware is None:
