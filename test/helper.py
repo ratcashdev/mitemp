@@ -13,7 +13,7 @@ class MockBackend(AbstractBackend):
     """
 
     def __init__(self, adapter='hci0', address_type: str = 'public'):
-        super(MockBackend, self).__init__(adapter, address_type)
+        super().__init__(adapter, address_type)
         self._version = '00.00.66'
         self.name = 'MJ_HT_V1'
         self.battery_level = 0
@@ -21,7 +21,7 @@ class MockBackend(AbstractBackend):
         self.humidity = 0.0
         self.written_handles = []
         self.expected_write_handles = set()
-        self.override_read_handles = dict()
+        self.override_read_handles = {}
         self.is_available = True
         self._handle_0x03_raw_set = False
         self._handle_0x03_raw = None

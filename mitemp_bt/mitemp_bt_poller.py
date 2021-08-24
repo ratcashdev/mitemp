@@ -174,7 +174,7 @@ class MiTempBtPoller:
         data = data.strip('\0')
         data = ''.join(filter(lambda i: i.isprintable(), data))
 
-        res = dict()
+        res = {}
         for dataitem in data.split(' '):
             dataparts = dataitem.split('=')
             if dataparts[0] == 'T':
