@@ -19,7 +19,7 @@ setup(
         'Programming Language :: Python :: 3.5'
         'Programming Language :: Python :: 3.9'
     ],
-    packages=find_packages('test','test.*'),
+    packages=find_packages('test', 'test.*'),
     install_requires=['btlewrap>=0.0.8'],
     keywords='temperature and humidity sensor bluetooth low-energy ble',
     zip_safe=False,
